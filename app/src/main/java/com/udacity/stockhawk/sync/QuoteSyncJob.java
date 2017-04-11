@@ -11,6 +11,7 @@ import android.net.NetworkInfo;
 
 import com.udacity.stockhawk.data.Contract;
 import com.udacity.stockhawk.data.PrefUtils;
+import com.udacity.stockhawk.ui.MainFragment;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -32,6 +33,7 @@ public final class QuoteSyncJob {
 
     private static final int ONE_OFF_ID = 2;
     private static final String ACTION_DATA_UPDATED = "com.udacity.stockhawk.ACTION_DATA_UPDATED";
+    public static final String ACTION_DATA_NOT_FOUND = "com.udacity.stockhawk.ACTION_DATA_NOT_FOUND";
     private static final int PERIOD = 300000;
     private static final int INITIAL_BACKOFF = 10000;
     private static final int PERIODIC_ID = 1;
@@ -74,7 +76,14 @@ public final class QuoteSyncJob {
 
                 Stock stock = quotes.get(symbol);
                 StockQuote quote = stock.getQuote();
+                if(quote.getPrice()==null){
+                    Intent dataFailedIntent = new Intent(ACTION_DATA_NOT_FOUND);
+                    dataFailedIntent.putExtra(MainFragment.NEW_STOCK_SYMBOL,symbol);
+                    context.sendBroadcast(dataFailedIntent);
+                    PrefUtils.removeStock(context,symbol);
+                    continue;
 
+                }
                 float price = quote.getPrice().floatValue();
                 float change = quote.getChange().floatValue();
                 float percentChange = quote.getChangeInPercent().floatValue();
@@ -103,6 +112,7 @@ public final class QuoteSyncJob {
 
                 quoteCVs.add(quoteCV);
 
+
             }
 
             context.getContentResolver()
@@ -111,6 +121,7 @@ public final class QuoteSyncJob {
                             quoteCVs.toArray(new ContentValues[quoteCVs.size()]));
 
             Intent dataUpdatedIntent = new Intent(ACTION_DATA_UPDATED);
+
             context.sendBroadcast(dataUpdatedIntent);
 
         } catch (IOException exception) {
