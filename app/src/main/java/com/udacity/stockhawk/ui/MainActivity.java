@@ -29,6 +29,8 @@ public class MainActivity extends AppCompatActivity implements MainFragment.Main
         } else {
             mTwoPanel = false;
         }
+        PrefUtils.updateSymbolListLastUpdated(this);
+        PrefUtils.getSymbolListLastUpdated(this);
 
 
 

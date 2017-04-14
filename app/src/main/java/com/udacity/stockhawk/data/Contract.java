@@ -11,6 +11,7 @@ public final class Contract {
     static final String AUTHORITY = "com.udacity.stockhawk";
     static final String PATH_QUOTE = "quote";
     static final String PATH_QUOTE_WITH_SYMBOL = "quote/*";
+    static final String PATH_SYMBOL = "symbols";
     private static final Uri BASE_URI = Uri.parse("content://" + AUTHORITY);
 
     private Contract() {
@@ -49,6 +50,14 @@ public final class Contract {
             return queryUri.getLastPathSegment();
         }
 
+
+    }
+    public static final class Symbols implements BaseColumns{
+        public static final Uri URI = BASE_URI.buildUpon().appendPath(PATH_SYMBOL).build();
+        public static final String COLUMN_SYMBOL = "Symbol";
+        public static final String COLUMN_ISSUE_NAME = "Issue_Name";
+        public static final String COLUMN_Primary_Listing_Mkt= "Primary_Listing_Mkt";
+        static final String TABLE_NAME = "symbols";
 
     }
 

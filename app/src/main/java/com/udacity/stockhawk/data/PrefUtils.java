@@ -3,11 +3,14 @@ package com.udacity.stockhawk.data;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.text.format.DateFormat;
 import android.util.Log;
 
 import com.udacity.stockhawk.R;
 
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -37,6 +40,35 @@ public final class PrefUtils {
         Set<String>results= prefs.getStringSet(stocksKey, new HashSet<String>());
         Log.d(PrefUtils.class.getSimpleName(),results.toString());
         return results;
+    }
+    public static Date getSymbolListLastUpdated(Context context){
+        String symbolListLasUpdatedKey=context.getString(R.string.pref_symbols_last_updated);
+        SharedPreferences prefs=PreferenceManager.getDefaultSharedPreferences(context);
+        String lastUpdated;
+        lastUpdated=prefs.getString(symbolListLasUpdatedKey,"1990-01-01");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Date date=new Date();
+
+        try {
+            date=sdf.parse(lastUpdated);
+        }
+        catch (Exception e){
+
+            return null;
+        }
+        Log.d(PrefUtils.class.getSimpleName(),"Returned "+sdf.format(date));
+        return date;
+
+    }
+    public static void updateSymbolListLastUpdated(Context context){
+        String symbolListLasUpdatedKey=context.getString(R.string.pref_symbols_last_updated);
+        SharedPreferences prefs=PreferenceManager.getDefaultSharedPreferences(context);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        String lastUpdated=sdf.format(new Date()).toString();
+        Log.d(PrefUtils.class.getSimpleName(),"To Be Stored"+lastUpdated);
+        SharedPreferences.Editor editor=prefs.edit();
+        editor.putString(symbolListLasUpdatedKey,lastUpdated);
+        editor.apply();
     }
 
     private static void editStockPref(Context context, String symbol, Boolean add) {

@@ -15,6 +15,7 @@ public class StockProvider extends ContentProvider {
 
     private static final int QUOTE = 100;
     private static final int QUOTE_FOR_SYMBOL = 101;
+    private static final int SYMBOLS=1000;
 
     private static final UriMatcher uriMatcher = buildUriMatcher();
 
@@ -24,6 +25,7 @@ public class StockProvider extends ContentProvider {
         UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
         matcher.addURI(Contract.AUTHORITY, Contract.PATH_QUOTE, QUOTE);
         matcher.addURI(Contract.AUTHORITY, Contract.PATH_QUOTE_WITH_SYMBOL, QUOTE_FOR_SYMBOL);
+        matcher.addURI(Contract.AUTHORITY,Contract.PATH_SYMBOL,SYMBOLS);
         return matcher;
     }
 
@@ -65,6 +67,16 @@ public class StockProvider extends ContentProvider {
                 );
 
                 break;
+            case SYMBOLS:
+                returnCursor = db.query(
+                        Contract.Symbols.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder
+                );
             default:
                 throw new UnsupportedOperationException("Unknown URI:" + uri);
         }
@@ -159,34 +171,49 @@ public class StockProvider extends ContentProvider {
     public int bulkInsert(@NonNull Uri uri, @NonNull ContentValues[] values) {
 
         final SQLiteDatabase db = dbHelper.getWritableDatabase();
-
+        int returnCount = 0;
         switch (uriMatcher.match(uri)) {
             case QUOTE:
                 db.beginTransaction();
-                int returnCount = 0;
+
                 try {
                     for (ContentValues value : values) {
-                        db.insert(
+                        returnCount+=db.insert(
                                 Contract.Quote.TABLE_NAME,
                                 null,
                                 value
-                        );
+                        ) > -1 ? 1 : 0;
                     }
                     db.setTransactionSuccessful();
                 } finally {
                     db.endTransaction();
                 }
+                break;
 
-                Context context = getContext();
-                if (context != null) {
-                    context.getContentResolver().notifyChange(uri, null);
+            case SYMBOLS:
+                db.beginTransaction();
+                try{
+                    for(ContentValues value:values){
+                        returnCount+=db.insert(
+                                Contract.Symbols.TABLE_NAME,
+                                null,
+                                value
+                        ) > -1 ? 1 : 0;
+
+                    }
+                    db.setTransactionSuccessful();
+
+                } finally {
+                    db.endTransaction();
                 }
-
-                return returnCount;
+                break;
             default:
                 return super.bulkInsert(uri, values);
         }
-
-
+        Context context = getContext();
+        if (context != null) {
+            context.getContentResolver().notifyChange(uri, null);
+        }
+        return returnCount;
     }
 }
