@@ -76,7 +76,9 @@ public class StockProvider extends ContentProvider {
                         null,
                         null,
                         sortOrder
+
                 );
+                break;
             default:
                 throw new UnsupportedOperationException("Unknown URI:" + uri);
         }
@@ -145,6 +147,13 @@ public class StockProvider extends ContentProvider {
                 rowsDeleted = db.delete(
                         Contract.Quote.TABLE_NAME,
                         '"' + symbol + '"' + " =" + Contract.Quote.COLUMN_SYMBOL,
+                        selectionArgs
+                );
+                break;
+            case SYMBOLS:
+                rowsDeleted= db.delete(
+                        Contract.Symbols.TABLE_NAME,
+                        selection,
                         selectionArgs
                 );
                 break;

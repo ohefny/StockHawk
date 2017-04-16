@@ -3,6 +3,8 @@ package com.udacity.stockhawk.data;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
+import android.widget.CursorAdapter;
 
 import com.udacity.stockhawk.data.Contract.Quote;
 import com.udacity.stockhawk.data.Contract.Symbols;
@@ -21,7 +23,7 @@ class DbHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        StringBuilder builder = new StringBuilder("CREATE TABLE " + Quote.TABLE_NAME + " ("
+        String qouteStm = new String("CREATE TABLE " + Quote.TABLE_NAME + " ("
                 + Quote._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + Quote.COLUMN_SYMBOL + " TEXT NOT NULL, "
                 + Quote.COLUMN_PRICE + " REAL NOT NULL, "
@@ -29,16 +31,18 @@ class DbHelper extends SQLiteOpenHelper {
                 + Quote.COLUMN_PERCENTAGE_CHANGE + " REAL NOT NULL, "
                 + Quote.COLUMN_HISTORY + " TEXT NOT NULL, "
                 + "UNIQUE (" + Quote.COLUMN_SYMBOL + ") ON CONFLICT REPLACE);");
-        builder.append("CREATE TABLE "+ Symbols.TABLE_NAME +" ("
+        String symbolsStm = new String("CREATE TABLE "+ Symbols.TABLE_NAME +" ("
                 + Symbols._ID +" INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + Symbols.COLUMN_SYMBOL+" TEXT NOT NULL, "
                 + Symbols.COLUMN_ISSUE_NAME+" TEXT , "
-                + Symbols.COLUMN_Primary_Listing_Mkt+" TEXT );");
+                + Symbols.COLUMN_Primary_Listing_Mkt+" TEXT," +
+                " UNIQUE (" + Symbols.COLUMN_SYMBOL + ") ON CONFLICT REPLACE);)");
 
-
-        db.execSQL(builder.toString());
-
+        Log.d(DbHelper.class.getSimpleName(),symbolsStm+qouteStm);
+        db.execSQL(qouteStm);
+        db.execSQL(symbolsStm);
     }
+
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {

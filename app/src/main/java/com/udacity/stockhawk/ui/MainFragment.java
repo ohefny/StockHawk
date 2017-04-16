@@ -16,6 +16,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.widget.CursorAdapter;
+import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -24,6 +26,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,17 +34,25 @@ import com.udacity.stockhawk.R;
 import com.udacity.stockhawk.data.Contract;
 import com.udacity.stockhawk.data.PrefUtils;
 import com.udacity.stockhawk.sync.QuoteSyncJob;
+import com.udacity.stockhawk.sync.SymbolsFileLoader;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class MainFragment extends Fragment implements
         SwipeRefreshLayout.OnRefreshListener,
-        LoaderManager.LoaderCallbacks<Cursor>,
-        StockAdapter.StockAdapterOnClickHandler
+        LoaderManager.LoaderCallbacks,
+        StockAdapter.StockAdapterOnClickHandler {
 
-{
-
+    private static final int AVAIL_SYMBOLS_LOADER = 1;
+    private static final int DOWNLOAD_SYMBOLS_LOADER =2 ;
     @SuppressWarnings("WeakerAccess")
     @BindView(R.id.recycler_view)
     RecyclerView stockRecyclerView;
@@ -57,10 +68,17 @@ public class MainFragment extends Fragment implements
     public static final String NEW_STOCK_SYMBOL = "NEW-STOCK";
     MainFragmentActionListener mListener;
     BroadcastReceiver mBroadcastReciver;
+    private CursorLoader mUserStocksLoader;
+    private CursorLoader mAvailableSymbolsLoader;
+    private SymbolsFileLoader mDownloadSymbolsLoader;
+    private ArrayAdapter autoCompleteAdapter;
+    private AddStockDialog addStockDialog;
+    private boolean networkProblem=false;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        Log.d(MainFragment.class.getSimpleName(),"Fuck "+Thread.currentThread().getName()+" ID::"+ Thread.currentThread().getId());
     }
 
     @Nullable
@@ -73,6 +91,8 @@ public class MainFragment extends Fragment implements
         stockRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         swipeRefreshLayout.setOnRefreshListener(this);
         swipeRefreshLayout.setRefreshing(true);
+        autoCompleteAdapter=new ArrayAdapter(getActivity(),R.layout.suggest_item);
+        addStockDialog= new AddStockDialog();
         onRefresh();
 
         QuoteSyncJob.initialize(getActivity());
@@ -94,7 +114,7 @@ public class MainFragment extends Fragment implements
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new AddStockDialog().show(getActivity().getFragmentManager(), "StockDialogFragment");
+                addStockDialog.show(getActivity().getFragmentManager(), "StockDialogFragment");
 
             }
         });
@@ -107,6 +127,10 @@ public class MainFragment extends Fragment implements
 
         QuoteSyncJob.syncImmediately(getActivity());
 
+        isErrorOccur();
+    }
+
+    private void isErrorOccur() {
         if (!networkUp() && adapter.getItemCount() == 0) {
             swipeRefreshLayout.setRefreshing(false);
             error.setText(getString(R.string.error_no_network));
@@ -118,15 +142,32 @@ public class MainFragment extends Fragment implements
             swipeRefreshLayout.setRefreshing(false);
             error.setText(getString(R.string.error_no_stocks));
             error.setVisibility(View.VISIBLE);
-        } else {
+        } else if(adapter.getItemCount()==0&&networkProblem){
+            swipeRefreshLayout.setRefreshing(false);
+            error.setText(getString(R.string.error_no_stocks_no_network));
+            error.setVisibility(View.VISIBLE);
+        }
+
+        else {
             error.setVisibility(View.GONE);
         }
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
-        getLoaderManager().initLoader(STOCK_LOADER, null, this);
-        super.onActivityCreated(savedInstanceState);
+        // IF 7 DAYS PAST SINCE THE LAST TIME SYMBOLS UPDATED LOAD FROM INTERNTER THE NEW SYMBOLS LIST
+        Calendar prevDate=PrefUtils.getSymbolListLastUpdated(getActivity());
+        Calendar nowDate=Calendar.getInstance();
+        prevDate.add(Calendar.DAY_OF_MONTH,7);
+        if(prevDate.compareTo(nowDate)>0){
+            //TODO:: CHECK IF THE AVAILABLE SYMBOLS HAS TO BE UPDATED IF SO DOWNLOAD FROM INTERNET
+            getLoaderManager().initLoader(DOWNLOAD_SYMBOLS_LOADER, null, this);
+        }
+
+       getLoaderManager().initLoader(STOCK_LOADER, null, this);
+       getLoaderManager().initLoader(AVAIL_SYMBOLS_LOADER, null, this);
+
+       super.onActivityCreated(savedInstanceState);
     }
     private boolean networkUp() {
         ConnectivityManager cm =
@@ -142,21 +183,66 @@ public class MainFragment extends Fragment implements
 
 
     @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        return new CursorLoader(getActivity(),
+    public Loader onCreateLoader(int id, Bundle args) {
+        if (id==STOCK_LOADER){
+                mUserStocksLoader= new CursorLoader(getActivity(),
                 Contract.Quote.URI,
                 Contract.Quote.QUOTE_COLUMNS.toArray(new String[]{}),
                 null, null, Contract.Quote.COLUMN_SYMBOL);
+                return mUserStocksLoader;
+
+        }
+        else if (id==AVAIL_SYMBOLS_LOADER)
+        {
+            mAvailableSymbolsLoader=new CursorLoader(getActivity(),
+                    Contract.Symbols.URI,
+                    Contract.Symbols.SYMBOLS_COL.toArray(new String[]{}),null,null,Contract.Symbols.COLUMN_SYMBOL
+                    );
+
+            return  mAvailableSymbolsLoader;
+        }
+        else if(id==DOWNLOAD_SYMBOLS_LOADER){
+            mDownloadSymbolsLoader=new SymbolsFileLoader(getActivity(),getActivity().getFilesDir().getPath().toString()+"/symb.txt");
+           // mDownloadSymbolsLoader.startLoading();
+            return mDownloadSymbolsLoader;
+
+        }
+        return null;
     }
 
     @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        swipeRefreshLayout.setRefreshing(false);
+    public void onLoadFinished(Loader loader, Object data) {
 
-        if (data.getCount() != 0) {
-            error.setVisibility(View.GONE);
+        if(loader.equals(mUserStocksLoader)){
+            Cursor cursorData=(Cursor)data;
+            swipeRefreshLayout.setRefreshing(false);
+
+            if (cursorData.getCount() != 0) {
+                error.setVisibility(View.GONE);
+            }
+           // else if(!networkUp()){
+             //   error.setVisibility(View.VISIBLE);
+            //}
+            adapter.setCursor(cursorData);
         }
-        adapter.setCursor(data);
+        else if(loader.equals(mAvailableSymbolsLoader)){
+            Cursor cursorData=(Cursor)data;
+            List<String> c=new ArrayList<String>();
+            while (cursorData.moveToNext())
+                c.add(cursorData.getString(0));
+
+            autoCompleteAdapter.clear();
+            autoCompleteAdapter.addAll(c);
+            addStockDialog.setAdapter(autoCompleteAdapter);
+
+            //TODO: ADD THIS DATA CURSOR TO THE SUGGESTION TEXT ADAPTER
+
+        }
+        else if(loader.equals(mDownloadSymbolsLoader)){
+            if((Integer)(data)>0)
+                PrefUtils.updateSymbolListLastUpdated(getActivity());
+            Log.d(MainFragment.class.getSimpleName(),"Fuck Inserted Symbols :: "+data.toString());
+        }
     }
 
     @Override
@@ -165,16 +251,25 @@ public class MainFragment extends Fragment implements
         mListener=(MainFragmentActionListener)getActivity();
         setupReceiver();
         getActivity().registerReceiver(mBroadcastReciver,new IntentFilter(QuoteSyncJob.ACTION_DATA_NOT_FOUND));
+        getActivity().registerReceiver(mBroadcastReciver,new IntentFilter(QuoteSyncJob.ACTION_NETWORK_PROBLEM));
     }
 
     private void setupReceiver() {
         mBroadcastReciver=new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                if(intent.getAction().equals(QuoteSyncJob.ACTION_DATA_NOT_FOUND)) {
+                if(intent.getAction().equals(QuoteSyncJob.ACTION_DATA_UPDATED)){
+                    getLoaderManager().restartLoader(STOCK_LOADER,null,MainFragment.this);
+                    networkProblem=false;
+                }
+                else if(intent.getAction().equals(QuoteSyncJob.ACTION_DATA_NOT_FOUND)) {
                     //TODO::REPLACE IT WITH SNACKBAR
                     Toast.makeText(getActivity(), intent.getStringExtra(NEW_STOCK_SYMBOL) + "Not Found", Toast.LENGTH_SHORT).show();
                     PrefUtils.removeStock(getActivity(),intent.getStringExtra(NEW_STOCK_SYMBOL));
+                }
+                else if(intent.getAction().equals(QuoteSyncJob.ACTION_NETWORK_PROBLEM)){
+                    networkProblem=true;
+                    isErrorOccur();
                 }
             }
         };
@@ -193,7 +288,7 @@ public class MainFragment extends Fragment implements
     }
 
     @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
+    public void onLoaderReset(Loader loader) {
         swipeRefreshLayout.setRefreshing(false);
         adapter.setCursor(null);
     }

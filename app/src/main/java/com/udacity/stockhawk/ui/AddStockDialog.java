@@ -12,6 +12,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Adapter;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
+import android.widget.CursorAdapter;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -25,7 +29,8 @@ public class AddStockDialog extends DialogFragment {
 
     @SuppressWarnings("WeakerAccess")
     @BindView(R.id.dialog_stock)
-    EditText stock;
+    AutoCompleteTextView stock;
+    private ArrayAdapter adapter;
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -36,7 +41,6 @@ public class AddStockDialog extends DialogFragment {
         @SuppressLint("InflateParams") View custom = inflater.inflate(R.layout.add_stock_dialog, null);
 
         ButterKnife.bind(this, custom);
-
         stock.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -61,7 +65,8 @@ public class AddStockDialog extends DialogFragment {
         if (window != null) {
             window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
         }
-
+        if(adapter!=null)
+            stock.setAdapter(adapter);
         return dialog;
     }
 
@@ -72,6 +77,10 @@ public class AddStockDialog extends DialogFragment {
         }
         dismissAllowingStateLoss();
     }
-
+    public void setAdapter(ArrayAdapter adapter){
+        this.adapter=adapter;
+        if(stock!=null)
+            stock.setAdapter(adapter);
+    }
 
 }

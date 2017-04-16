@@ -10,6 +10,7 @@ import com.udacity.stockhawk.R;
 
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -41,7 +42,7 @@ public final class PrefUtils {
         Log.d(PrefUtils.class.getSimpleName(),results.toString());
         return results;
     }
-    public static Date getSymbolListLastUpdated(Context context){
+    public static Calendar getSymbolListLastUpdated(Context context){
         String symbolListLasUpdatedKey=context.getString(R.string.pref_symbols_last_updated);
         SharedPreferences prefs=PreferenceManager.getDefaultSharedPreferences(context);
         String lastUpdated;
@@ -57,7 +58,9 @@ public final class PrefUtils {
             return null;
         }
         Log.d(PrefUtils.class.getSimpleName(),"Returned "+sdf.format(date));
-        return date;
+        Calendar calendar=Calendar.getInstance();
+        calendar.setTime(date);
+        return calendar;
 
     }
     public static void updateSymbolListLastUpdated(Context context){

@@ -58,7 +58,9 @@ public final class Contract {
         public static final String COLUMN_ISSUE_NAME = "Issue_Name";
         public static final String COLUMN_Primary_Listing_Mkt= "Primary_Listing_Mkt";
         static final String TABLE_NAME = "symbols";
-
+        public static final ImmutableList<String> SYMBOLS_COL= ImmutableList.of(
+          COLUMN_SYMBOL
+        );
     }
 
 }
