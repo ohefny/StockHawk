@@ -8,6 +8,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 
 import com.udacity.stockhawk.data.Contract;
 import com.udacity.stockhawk.data.PrefUtils;
@@ -77,15 +79,17 @@ public final class QuoteSyncJob {
 
 
                 Stock stock = quotes.get(symbol);
-                StockQuote quote = stock.getQuote();
-                if(quote.getPrice()==null){
+                if(stock==null||stock.getQuote()==null||stock.getQuote().getPrice()==null){
                     Intent dataFailedIntent = new Intent(ACTION_DATA_NOT_FOUND);
                     dataFailedIntent.putExtra(MainFragment.NEW_STOCK_SYMBOL,symbol);
-                    context.sendBroadcast(dataFailedIntent);
+                    //context.sendBroadcast(dataFailedIntent);
+                    LocalBroadcastManager.getInstance(context).sendBroadcast(dataFailedIntent);
                     PrefUtils.removeStock(context,symbol);
                     continue;
 
                 }
+                StockQuote quote = stock.getQuote();
+
                 float price = quote.getPrice().floatValue();
                 float change = quote.getChange().floatValue();
                 float percentChange = quote.getChangeInPercent().floatValue();
@@ -123,13 +127,15 @@ public final class QuoteSyncJob {
                             quoteCVs.toArray(new ContentValues[quoteCVs.size()]));
 
             Intent dataUpdatedIntent = new Intent(ACTION_DATA_UPDATED);
-
-            context.sendBroadcast(dataUpdatedIntent);
+            LocalBroadcastManager.getInstance(context).sendBroadcast(dataUpdatedIntent);
+          //  context.sendBroadcast(dataUpdatedIntent);
 
         } catch (IOException exception) {
             Timber.e(exception, "Error fetching stock quotes");
-            context.sendBroadcast(new Intent(ACTION_NETWORK_PROBLEM));
+            //context.sendBroadcast(new Intent(ACTION_NETWORK_PROBLEM));
+            LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(ACTION_NETWORK_PROBLEM));
         }
+
     }
 
     private static void schedulePeriodic(Context context) {

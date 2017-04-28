@@ -14,7 +14,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 /**
  * Created by BeTheChange on 4/15/2017.
@@ -54,11 +57,17 @@ public class SymbolsFileLoader extends AsyncTaskLoader<Integer> {
         File file=new File(path);
         stringBuilder=new StringBuilder();
         try {
-            FileInputStream fileReader=new FileInputStream(file);
-            BufferedReader inputStreamReader=new BufferedReader(new InputStreamReader(fileReader));
-            while (inputStreamReader.ready()){
-                String string=inputStreamReader.readLine();
-                stringBuilder.append(string);
+            URL symbsFile=new URL("http://oatsreportable.finra.org/OATSReportableSecurities-EOD.txt");
+            HttpURLConnection urlConnection = (HttpURLConnection) symbsFile.openConnection();
+            urlConnection.setRequestMethod("GET");
+            urlConnection.connect();
+            Log.d("FUCK URL ::",symbsFile.toString());
+            InputStreamReader fileReader=new InputStreamReader(
+                  urlConnection.getInputStream());
+            BufferedReader inputStreamReader=new BufferedReader(fileReader);
+            String line;
+            while ((line = inputStreamReader.readLine()) != null) {
+                stringBuilder.append(line);
                 stringBuilder.append('\n');
 
             }

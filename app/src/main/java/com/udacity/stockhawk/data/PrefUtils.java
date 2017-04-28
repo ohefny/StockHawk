@@ -60,6 +60,7 @@ public final class PrefUtils {
         Log.d(PrefUtils.class.getSimpleName(),"Returned "+sdf.format(date));
         Calendar calendar=Calendar.getInstance();
         calendar.setTime(date);
+        //Log.d("Calender",calendar.getDisplayName());
         return calendar;
 
     }

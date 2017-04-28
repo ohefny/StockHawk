@@ -16,6 +16,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -159,7 +160,7 @@ public class MainFragment extends Fragment implements
         Calendar prevDate=PrefUtils.getSymbolListLastUpdated(getActivity());
         Calendar nowDate=Calendar.getInstance();
         prevDate.add(Calendar.DAY_OF_MONTH,7);
-        if(prevDate.compareTo(nowDate)>0){
+        if(prevDate.compareTo(nowDate)<=0){
             //TODO:: CHECK IF THE AVAILABLE SYMBOLS HAS TO BE UPDATED IF SO DOWNLOAD FROM INTERNET
             getLoaderManager().initLoader(DOWNLOAD_SYMBOLS_LOADER, null, this);
         }
@@ -235,7 +236,7 @@ public class MainFragment extends Fragment implements
             autoCompleteAdapter.addAll(c);
             addStockDialog.setAdapter(autoCompleteAdapter);
 
-            //TODO: ADD THIS DATA CURSOR TO THE SUGGESTION TEXT ADAPTER
+
 
         }
         else if(loader.equals(mDownloadSymbolsLoader)){
@@ -250,8 +251,10 @@ public class MainFragment extends Fragment implements
         super.onAttach(context);
         mListener=(MainFragmentActionListener)getActivity();
         setupReceiver();
-        getActivity().registerReceiver(mBroadcastReciver,new IntentFilter(QuoteSyncJob.ACTION_DATA_NOT_FOUND));
-        getActivity().registerReceiver(mBroadcastReciver,new IntentFilter(QuoteSyncJob.ACTION_NETWORK_PROBLEM));
+       // LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mBroadcastReciver,new IntentFilter());
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mBroadcastReciver,new IntentFilter(QuoteSyncJob.ACTION_DATA_NOT_FOUND));
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mBroadcastReciver,new IntentFilter(QuoteSyncJob.ACTION_NETWORK_PROBLEM));
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mBroadcastReciver,new IntentFilter(QuoteSyncJob.ACTION_DATA_UPDATED));
     }
 
     private void setupReceiver() {
@@ -264,7 +267,7 @@ public class MainFragment extends Fragment implements
                 }
                 else if(intent.getAction().equals(QuoteSyncJob.ACTION_DATA_NOT_FOUND)) {
                     //TODO::REPLACE IT WITH SNACKBAR
-                    Toast.makeText(getActivity(), intent.getStringExtra(NEW_STOCK_SYMBOL) + "Not Found", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), intent.getStringExtra(NEW_STOCK_SYMBOL) + " Not Found", Toast.LENGTH_SHORT).show();
                     PrefUtils.removeStock(getActivity(),intent.getStringExtra(NEW_STOCK_SYMBOL));
                 }
                 else if(intent.getAction().equals(QuoteSyncJob.ACTION_NETWORK_PROBLEM)){
@@ -283,8 +286,9 @@ public class MainFragment extends Fragment implements
 
     @Override
     public void onDetach() {
+        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mBroadcastReciver);
         super.onDetach();
-        getActivity().unregisterReceiver(mBroadcastReciver);
+
     }
 
     @Override

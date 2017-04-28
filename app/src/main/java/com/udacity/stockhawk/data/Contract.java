@@ -40,6 +40,9 @@ public final class Contract {
                 COLUMN_PERCENTAGE_CHANGE,
                 COLUMN_HISTORY
         );
+        public static final ImmutableList<String> QOUTE_HISTORY_COLUMN= ImmutableList.of(
+                COLUMN_HISTORY
+        );
         static final String TABLE_NAME = "quotes";
 
         public static Uri makeUriForStock(String symbol) {
@@ -61,6 +64,7 @@ public final class Contract {
         public static final ImmutableList<String> SYMBOLS_COL= ImmutableList.of(
           COLUMN_SYMBOL
         );
+
     }
 
 }
