@@ -16,6 +16,7 @@ import com.udacity.stockhawk.data.PrefUtils;
 import com.udacity.stockhawk.ui.MainFragment;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashSet;
@@ -96,12 +97,13 @@ public final class QuoteSyncJob {
 
                 // WARNING! Don't request historical data for a stock that doesn't exist!
                 // The request will hang forever X_x
-                List<HistoricalQuote> history = stock.getHistory(from, to, Interval.WEEKLY);
+                List<HistoricalQuote> history = stock.getHistory(from, to, Interval.MONTHLY);
 
                 StringBuilder historyBuilder = new StringBuilder();
-
+                SimpleDateFormat sdf=new SimpleDateFormat("MMM yy");
                 for (HistoricalQuote it : history) {
-                    historyBuilder.append(it.getDate().getTimeInMillis());
+
+                    historyBuilder.append(sdf.format(it.getDate().getTime()));
                     historyBuilder.append(", ");
                     historyBuilder.append(it.getClose());
                     historyBuilder.append("\n");
