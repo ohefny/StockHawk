@@ -37,5 +37,8 @@
     <string name="addBtnDescription" translatable="true">Add New Stock Symbol</string>
     <string name="pref_symbols_list">symbols_list</string>
     <string name="pref_symbols_last_updated">symbols_last_updated</string>
+    <string name="appwidget_text">EXAMPLE</string>
+    <string name="add_widget">Add widget</string>
+    <string name="empty_widget_text">No Stocks Available</string>
 
 </resources>

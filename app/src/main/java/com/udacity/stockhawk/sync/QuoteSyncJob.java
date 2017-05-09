@@ -6,15 +6,18 @@ import android.content.ComponentName;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.udacity.stockhawk.UpdateWidgetsService;
 import com.udacity.stockhawk.data.Contract;
 import com.udacity.stockhawk.data.PrefUtils;
 import com.udacity.stockhawk.ui.MainFragment;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -31,6 +34,7 @@ import yahoofinance.YahooFinance;
 import yahoofinance.histquotes.HistoricalQuote;
 import yahoofinance.histquotes.Interval;
 import yahoofinance.quotes.stock.StockQuote;
+import static com.udacity.stockhawk.UpdateWidgetsService.startUpdateWidgetsService;
 
 public final class QuoteSyncJob {
 
@@ -48,7 +52,13 @@ public final class QuoteSyncJob {
     }
 
     static void getQuotes(Context context) {
-
+        String symbol="";
+        Cursor inside=context.getContentResolver().query(Contract.Quote.URI, new String[]{Contract.Quote.COLUMN_SYMBOL},null,null, Contract.Quote.COLUMN_SYMBOL);
+        StringBuilder stringBuilder=new StringBuilder();
+        while (inside.moveToNext()){
+           stringBuilder.append(inside.getString(0)+" \\ ");
+        }
+        Log.d("Qoutes in Datbase",stringBuilder.toString());
         Timber.d("Running sync job");
 
         Calendar from = Calendar.getInstance();
@@ -76,7 +86,7 @@ public final class QuoteSyncJob {
             ArrayList<ContentValues> quoteCVs = new ArrayList<>();
 
             while (iterator.hasNext()) {
-                String symbol = iterator.next();
+                symbol= iterator.next();
 
 
                 Stock stock = quotes.get(symbol);
@@ -130,12 +140,25 @@ public final class QuoteSyncJob {
 
             Intent dataUpdatedIntent = new Intent(ACTION_DATA_UPDATED);
             LocalBroadcastManager.getInstance(context).sendBroadcast(dataUpdatedIntent);
+            UpdateWidgetsService.startUpdateWidgetsService(context);
           //  context.sendBroadcast(dataUpdatedIntent);
 
-        } catch (IOException exception) {
+        } catch (FileNotFoundException ex){
+            Intent dataFailedIntent = new Intent(ACTION_DATA_NOT_FOUND);
+            dataFailedIntent.putExtra(MainFragment.NEW_STOCK_SYMBOL,symbol);
+            LocalBroadcastManager.getInstance(context).sendBroadcast(dataFailedIntent);
+            PrefUtils.removeStock(context,symbol);
+
+        }catch (IOException exception) {
             Timber.e(exception, "Error fetching stock quotes");
             //context.sendBroadcast(new Intent(ACTION_NETWORK_PROBLEM));
             LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(ACTION_NETWORK_PROBLEM));
+        }catch (Exception ex){
+            Intent dataFailedIntent = new Intent(ACTION_DATA_NOT_FOUND);
+            dataFailedIntent.putExtra(MainFragment.NEW_STOCK_SYMBOL,symbol);
+            LocalBroadcastManager.getInstance(context).sendBroadcast(dataFailedIntent);
+            PrefUtils.removeStock(context,symbol);
+
         }
 
     }

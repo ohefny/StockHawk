@@ -32,6 +32,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.udacity.stockhawk.R;
+import com.udacity.stockhawk.UpdateWidgetsService;
 import com.udacity.stockhawk.data.Contract;
 import com.udacity.stockhawk.data.PrefUtils;
 import com.udacity.stockhawk.sync.QuoteSyncJob;
@@ -110,6 +111,7 @@ public class MainFragment extends Fragment implements
                 String symbol = adapter.getSymbolAtPosition(viewHolder.getAdapterPosition());
                 PrefUtils.removeStock(getActivity(), symbol);
                 getActivity().getContentResolver().delete(Contract.Quote.makeUriForStock(symbol), null, null);
+
             }
         }).attachToRecyclerView(stockRecyclerView);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -122,6 +124,8 @@ public class MainFragment extends Fragment implements
 
         return view;
     }
+
+
 
     @Override
     public void onRefresh() {
@@ -274,6 +278,7 @@ public class MainFragment extends Fragment implements
                     networkProblem=true;
                     isErrorOccur();
                 }
+                swipeRefreshLayout.setRefreshing(false);
             }
         };
     }

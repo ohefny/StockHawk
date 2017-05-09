@@ -66,8 +66,8 @@ public class DetailsFragment extends Fragment implements LoaderManager.LoaderCal
         if(savedInstanceState==null||savedInstanceState.get(HISTORY_KEY)==null)
             getLoaderManager().initLoader(HISTORY_LOADER_ID,null,this);
         else{
-            mHistory=savedInstanceState.getString(HISTORY_KEY);
-            onHistoryLoaded();
+           mHistory=savedInstanceState.getString(HISTORY_KEY);
+           onHistoryLoaded();
         }
         return root;
     }

@@ -7,6 +7,7 @@ import android.text.format.DateFormat;
 import android.util.Log;
 
 import com.udacity.stockhawk.R;
+import com.udacity.stockhawk.UpdateWidgetsService;
 
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -91,6 +92,7 @@ public final class PrefUtils {
         editor.putStringSet(key, newStocks);
 
         editor.apply();
+        UpdateWidgetsService.startUpdateWidgetsService(context);
     }
 
     public static void addStock(Context context, String symbol) {
