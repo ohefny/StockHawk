@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="dialog_title">اضافة شركة</string>
+    <string name="dialog_hint">رمز الشركة (مثال : GOOG)</string>
+    <string name="dialog_cancel">الغاء</string>
+    <string name="dialog_add">اضافة</string>
+    <string name="error_no_network">فقد الاتصال بالانترنت سيتم توفير البيانات عند اعادة الاتصال </string>
+    <string name="error_no_stocks">لا يوجد اي شركات مضافة .. اضغط علي زرار الزائد لاضافة شركات </string>
+    <string name="error_no_stocks_no_network">يوجد مشكلة في اتصالك .. من فضلك تأكد من اتصالك بالانترنت</string>
+    <string name="toast_stock_added_no_connectivity">تم اضافة الرمز %s سيتم التحديث عند توافر الانترنت</string>
+    <string name="toast_no_connectivity"> سيتم التحديث عند توافر الانترنت</string>
+    <string name="addBtnDescription" translatable="true">اضافة رمز جديد</string>
+    <string name="appwidget_text">مثال</string>
+    <string name="add_widget">اضف اداة</string>
+    <string name="empty_widget_text">لا يتوفر اي شركات</string>
+    <string name="no_chart_data">بيانات الرسم غير متوفرة</string>
+</resources>

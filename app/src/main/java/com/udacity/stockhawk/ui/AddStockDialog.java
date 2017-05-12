@@ -54,13 +54,11 @@ public class AddStockDialog extends DialogFragment {
         builder.setPositiveButton(getString(R.string.dialog_add),
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        addStock();
+                            addStock();
                     }
                 });
         builder.setNegativeButton(getString(R.string.dialog_cancel), null);
-
         Dialog dialog = builder.create();
-
         Window window = dialog.getWindow();
         if (window != null) {
             window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);

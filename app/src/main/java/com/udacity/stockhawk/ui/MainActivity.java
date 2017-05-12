@@ -11,6 +11,7 @@ import com.udacity.stockhawk.data.PrefUtils;
 public class MainActivity extends AppCompatActivity implements MainFragment.MainFragmentActionListener{
     private boolean mTwoPanel=false;
     private MainFragment mMain_Fragment;
+    private DetailsFragment mDetailsFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,21 +21,15 @@ public class MainActivity extends AppCompatActivity implements MainFragment.Main
         if (findViewById(R.id.details_container) != null) {
             mTwoPanel = true;
             if (savedInstanceState == null) {
-                DetailsFragment detailsFragment=new DetailsFragment();
-                getSupportFragmentManager().beginTransaction()
-                        .add(R.id.details_container, detailsFragment)
-                        .commit();
+                mDetailsFragment = new DetailsFragment();
+                Bundle bundle=new Bundle();
+                bundle.putString(DetailsFragment.SYMBOL_KEY,"");
+                mDetailsFragment.setArguments(bundle);
+                getSupportFragmentManager().beginTransaction().add
+                        (R.id.details_container,mDetailsFragment).commit();
             }
-
-        } else {
+        } else
             mTwoPanel = false;
-        }
-
-
-
-
-
-
 
     }
 
@@ -58,7 +53,10 @@ public class MainActivity extends AppCompatActivity implements MainFragment.Main
     @Override
     public void onAttachFragment(Fragment fragment) {
         super.onAttachFragment(fragment);
-        mMain_Fragment=((MainFragment)(fragment));
+        if(fragment instanceof MainFragment)
+            mMain_Fragment=((MainFragment)(fragment));
+        else
+            mDetailsFragment=(DetailsFragment)(fragment);
     }
 
     @Override
@@ -78,12 +76,9 @@ public class MainActivity extends AppCompatActivity implements MainFragment.Main
     @Override
     public void onItemClicked(String symbol) {
         if(mTwoPanel){
-            DetailsFragment detailsFragment=new DetailsFragment();
             Bundle bundle=new Bundle();
             bundle.putString(DetailsFragment.SYMBOL_KEY,symbol !=null ? symbol:"");
-            detailsFragment.setArguments(bundle);
-            getSupportFragmentManager().beginTransaction().replace
-                    (R.id.details_container,detailsFragment).commit();
+            mDetailsFragment.argumentsUpdated(bundle);
         }
         else{
             Intent intent=new Intent(this,DetailsActivity.class);

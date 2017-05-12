@@ -31,14 +31,12 @@
     <string name="error_no_stocks_no_network">There\'s a problem with your network .. please check your connectivity </string>
     <string name="toast_stock_added_no_connectivity">Symbol %s added. Will refresh when network available.</string>
     <string name="toast_no_connectivity">Will refresh when network available.</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="addBtnDescription" translatable="true">Add New Stock Symbol</string>
     <string name="pref_symbols_list">symbols_list</string>
     <string name="pref_symbols_last_updated">symbols_last_updated</string>
     <string name="appwidget_text">EXAMPLE</string>
     <string name="add_widget">Add widget</string>
     <string name="empty_widget_text">No Stocks Available</string>
+    <string name="no_chart_data">No Chart Data Available</string>
 
 </resources>

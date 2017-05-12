@@ -75,8 +75,10 @@ public class SymbolsFileLoader extends AsyncTaskLoader<Integer> {
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();
+            return 0;
         } catch (IOException e) {
             e.printStackTrace();
+            return 0;
         }
         String[]values=stringBuilder.toString().split("\n");
         ContentValues[]contentValues=new ContentValues[values.length];

@@ -26,16 +26,18 @@ class StockAdapter extends RecyclerView.Adapter<StockAdapter.StockViewHolder> {
     private final DecimalFormat dollarFormatWithPlus;
     private final DecimalFormat dollarFormat;
     private final DecimalFormat percentageFormat;
+   // private final DecimalFormat dollarFormatWithNegative;
     private Cursor cursor;
     private final StockAdapterOnClickHandler clickHandler;
 
     StockAdapter(Context context, StockAdapterOnClickHandler clickHandler) {
         this.context = context;
         this.clickHandler = clickHandler;
-
-        dollarFormat = (DecimalFormat) NumberFormat.getCurrencyInstance(Locale.US);
+        dollarFormat = (DecimalFormat) NumberFormat.getNumberInstance(Locale.getDefault());
         dollarFormatWithPlus = (DecimalFormat) NumberFormat.getCurrencyInstance(Locale.US);
+        dollarFormat.setPositivePrefix("$");
         dollarFormatWithPlus.setPositivePrefix("+$");
+        //dollarFormatWithPlus.setS("$");
         percentageFormat = (DecimalFormat) NumberFormat.getPercentInstance(Locale.getDefault());
         percentageFormat.setMaximumFractionDigits(2);
         percentageFormat.setMinimumFractionDigits(2);
@@ -76,7 +78,9 @@ class StockAdapter extends RecyclerView.Adapter<StockAdapter.StockViewHolder> {
 
         if (rawAbsoluteChange > 0) {
             holder.change.setBackgroundResource(R.drawable.percent_change_pill_green);
+
         } else {
+
             holder.change.setBackgroundResource(R.drawable.percent_change_pill_red);
         }
 
@@ -118,10 +122,16 @@ class StockAdapter extends RecyclerView.Adapter<StockAdapter.StockViewHolder> {
         @BindView(R.id.change)
         TextView change;
 
+        public View getItemView() {
+            return itemView;
+        }
+
+        View itemView;
         StockViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
             itemView.setOnClickListener(this);
+            this.itemView=itemView;
         }
 
         @Override

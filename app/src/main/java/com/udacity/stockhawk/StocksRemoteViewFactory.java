@@ -37,8 +37,9 @@ public class StocksRemoteViewFactory implements RemoteViewsService.RemoteViewsFa
 
     public StocksRemoteViewFactory(Context context,Intent intent){
         this.mContext=context;
-        dollarFormat = (DecimalFormat) NumberFormat.getCurrencyInstance(Locale.US);
         dollarFormatWithPlus = (DecimalFormat) NumberFormat.getCurrencyInstance(Locale.US);
+        dollarFormat = (DecimalFormat) NumberFormat.getNumberInstance(Locale.getDefault());
+        dollarFormat.setPositivePrefix("$");
         dollarFormatWithPlus.setPositivePrefix("+$");
         percentageFormat = (DecimalFormat) NumberFormat.getPercentInstance(Locale.getDefault());
         percentageFormat.setMaximumFractionDigits(2);

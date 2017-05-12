@@ -2,8 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorAccent"
-    tools:context="com.udacity.stockhawk.ui.DetailsFragment">
+        tools:context="com.udacity.stockhawk.ui.DetailsFragment">
 
     <com.github.mikephil.charting.charts.LineChart
         android:id="@+id/chart"

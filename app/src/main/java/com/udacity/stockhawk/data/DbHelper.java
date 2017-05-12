@@ -30,6 +30,7 @@ class DbHelper extends SQLiteOpenHelper {
                 + Quote.COLUMN_ABSOLUTE_CHANGE + " REAL NOT NULL, "
                 + Quote.COLUMN_PERCENTAGE_CHANGE + " REAL NOT NULL, "
                 + Quote.COLUMN_HISTORY + " TEXT NOT NULL, "
+                + Quote.COLUMN_NAME + " TEXT NOT NULL, "
                 + "UNIQUE (" + Quote.COLUMN_SYMBOL + ") ON CONFLICT REPLACE);");
         String symbolsStm = new String("CREATE TABLE "+ Symbols.TABLE_NAME +" ("
                 + Symbols._ID +" INTEGER PRIMARY KEY AUTOINCREMENT, "

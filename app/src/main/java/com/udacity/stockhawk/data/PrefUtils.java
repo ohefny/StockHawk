@@ -7,6 +7,7 @@ import android.text.format.DateFormat;
 import android.util.Log;
 
 import com.udacity.stockhawk.R;
+import com.udacity.stockhawk.StocksRemoteViewsService;
 import com.udacity.stockhawk.UpdateWidgetsService;
 
 import java.text.SimpleDateFormat;
@@ -128,6 +129,7 @@ public final class PrefUtils {
         }
 
         editor.apply();
+        UpdateWidgetsService.startUpdateWidgetsService(context);
     }
 
 }
