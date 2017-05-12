@@ -21,6 +21,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -30,6 +31,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -65,7 +67,7 @@ public class MainFragment extends Fragment implements
     SwipeRefreshLayout swipeRefreshLayout;
     @SuppressWarnings("WeakerAccess")
     @BindView(R.id.error)
-    TextView error;
+    AppCompatImageView error;
     @BindView(R.id.fab) FloatingActionButton fab;
     private StockAdapter adapter;
     private static final int STOCK_LOADER = 0;
@@ -144,18 +146,20 @@ public class MainFragment extends Fragment implements
     private void isErrorOccur() {
         if (!networkUp() && adapter.getItemCount() == 0) {
             swipeRefreshLayout.setRefreshing(false);
-            error.setText(getString(R.string.error_no_network));
+           // error.setText(getString(R.string.error_no_network));
+            error.setImageResource(R.drawable.offline);
             error.setVisibility(View.VISIBLE);
         } else if (!networkUp()) {
             swipeRefreshLayout.setRefreshing(false);
             Toast.makeText(getActivity(), R.string.toast_no_connectivity, Toast.LENGTH_LONG).show();
         } else if (PrefUtils.getStocks(getActivity()).size() == 0) {
             swipeRefreshLayout.setRefreshing(false);
-            error.setText(getString(R.string.error_no_stocks));
+           // error.setText(getString(R.string.error_no_stocks));
             error.setVisibility(View.VISIBLE);
+            error.setImageResource(R.drawable.nostocks);
         } else if(adapter.getItemCount()==0&&networkProblem){
             swipeRefreshLayout.setRefreshing(false);
-            error.setText(getString(R.string.error_no_stocks_no_network));
+           // error.setText(getString(R.string.error_no_stocks_no_network));
             error.setVisibility(View.VISIBLE);
         }
 
@@ -250,9 +254,9 @@ public class MainFragment extends Fragment implements
 
         }
         else if(loader.equals(mDownloadSymbolsLoader)){
-            if((Integer)(data)>0)
+            if(data!=null&&(Integer)(data)>0)
                 PrefUtils.updateSymbolListLastUpdated(getActivity());
-            Log.d(MainFragment.class.getSimpleName(),"Fuck Inserted Symbols :: "+data.toString());
+//            Log.d(MainFragment.class.getSimpleName(),"Fuck Inserted Symbols :: "+data.toString());
         }
     }
 

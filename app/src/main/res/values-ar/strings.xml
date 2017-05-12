@@ -4,7 +4,7 @@
     <string name="dialog_hint">رمز الشركة (مثال : GOOG)</string>
     <string name="dialog_cancel">الغاء</string>
     <string name="dialog_add">اضافة</string>
-    <string name="error_no_network">فقد الاتصال بالانترنت سيتم توفير البيانات عند اعادة الاتصال </string>
+    <string name="error_no_network">تم فقد الاتصال بالانترنت سيتم توفير البيانات عند اعادة الاتصال </string>
     <string name="error_no_stocks">لا يوجد اي شركات مضافة .. اضغط علي زرار الزائد لاضافة شركات </string>
     <string name="error_no_stocks_no_network">يوجد مشكلة في اتصالك .. من فضلك تأكد من اتصالك بالانترنت</string>
     <string name="toast_stock_added_no_connectivity">تم اضافة الرمز %s سيتم التحديث عند توافر الانترنت</string>
